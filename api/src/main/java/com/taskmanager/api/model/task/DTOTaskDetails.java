@@ -3,35 +3,27 @@ package com.taskmanager.api.model.task;
 import java.util.Date;
 
 import com.taskmanager.api.model.department.DTODepartment;
-import com.taskmanager.api.model.person.DTOPersonId;
+import com.taskmanager.api.model.person.DTOPersonList;
 
-public record DTOTask(
-		
+public record DTOTaskDetails(
 		String title,
-		
 		String description,
-		
 		Date deadline,
-		
 		DTODepartment department,
-		
 		int duration,
-		
-		DTOPersonId person,
-		
-		boolean isDone
-		
+		DTOPersonList person, 
+		boolean is_done
 		) {
 	
-	public DTOTask(Task task) {
+	public DTOTaskDetails(Task task) {
 		this(
 				task.getTitle(),
 				task.getDescription(),
 				task.getDeadline(),
 				new DTODepartment(task.getDepartment().getId(), task.getDepartment().getName()),
 				task.getDuration(),
-				new DTOPersonId(task.getPerson().getId()),
+				new DTOPersonList(task.getPerson().getName(), task.getDepartment().getName()),
 				task.isDone());
+		
 	}
-
 }
