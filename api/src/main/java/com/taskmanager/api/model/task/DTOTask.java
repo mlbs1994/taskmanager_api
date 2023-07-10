@@ -2,8 +2,6 @@ package com.taskmanager.api.model.task;
 
 import java.util.Date;
 
-import com.taskmanager.api.model.person.Person;
-
 public record DTOTask(
 		
 		String title,
@@ -14,10 +12,20 @@ public record DTOTask(
 		
 		int duration,
 		
-		Person person,
+		String person,
 		
 		boolean isDone
 		
 		) {
+	
+	public DTOTask(Task task) {
+		this(
+				task.getTitle(),
+				task.getDescription(),
+				task.getDeadline(),
+				task.getDuration(),
+				task.getPerson().getName(),
+				task.isDone());
+	}
 
 }

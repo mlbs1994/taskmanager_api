@@ -1,26 +1,32 @@
 package com.taskmanager.api.controller;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.taskmanager.api.model.department.DTODepartment;
 import com.taskmanager.api.model.department.Department;
 import com.taskmanager.api.model.department.DepartmentRepository;
 import com.taskmanager.api.model.person.DTOPerson;
+import com.taskmanager.api.model.person.DTOPersonDetails;
 import com.taskmanager.api.model.person.DTOPersonList;
+import com.taskmanager.api.model.person.DTOUpdatePerson;
 import com.taskmanager.api.model.person.Person;
 import com.taskmanager.api.model.person.PersonRepository;
+import com.taskmanager.api.model.task.DTOTask;
 
 import jakarta.transaction.Transactional;
 
@@ -41,29 +47,63 @@ public class PersonController {
 		return ResponseEntity.ok(page);
 	}
 	
+	@GetMapping("/{id}")
+	public ResponseEntity<DTOPersonDetails> detail(@PathVariable Long id){
+		Person person = personRepository.getReferenceById(id);
+		
+		DTOPersonDetails personDetailsData = new DTOPersonDetails(
+				person.getName(),
+				person.getDepartment().getName(),
+				person.getTasksList().stream().map(DTOTask::new).collect(Collectors.toList()));
+		
+		return ResponseEntity.ok(personDetailsData);
+		
+	}
+	
 	
 	
 	@PostMapping
 	@Transactional
-	public ResponseEntity<DTOPerson> cadastrar(@RequestBody DTOPerson personData, UriComponentsBuilder uribuilder) {
+	public ResponseEntity<DTOPersonDetails> cadastrar(@RequestBody DTOPerson personData, UriComponentsBuilder uribuilder) {
 		
-		Department department = personData.department().id() != 0? 
-				departmentRepository.getReferenceById(personData.department().id()):
-				departmentRepository.save(new Department(personData.department().name()));
+		//Id must be required
+		Department department = departmentRepository.getReferenceById(personData.department().id());
 		
 		Person person = new Person(personData, department);
 		person = personRepository.save(person);
 		
-		if(personData.department().name() == null || personData.department().name().isBlank()) {
-			personData = new DTOPerson(person.getName(),
-						 new DTODepartment(person.getDepartment().getId(),
-								 		   person.getDepartment().getName()),
-						 				   person.getTasksList());
-		}
+		DTOPersonDetails personDetailsData = new DTOPersonDetails(
+				person.getName(),
+				person.getDepartment().getName(),
+				person.getTasksList().stream().map(DTOTask::new).collect(Collectors.toList()));
 		
 		URI uri = uribuilder.path("person/{id}").buildAndExpand(person.getId()).toUri();
 		
-		return ResponseEntity.created(uri).body(personData);
+		return ResponseEntity.created(uri).body(personDetailsData); 
+	}
+	
+	@PutMapping
+	@Transactional
+	public ResponseEntity<DTOPersonDetails> update(@RequestBody DTOUpdatePerson personData){
+		Person person = personRepository.getReferenceById(personData.id());
+		Department department = person.getDepartment();
+		person.update(personData, department);
+		
+		DTOPersonDetails personDetailsData = new DTOPersonDetails(
+				person.getName(),
+				person.getDepartment().getName(),
+				person.getTasksList().stream().map(DTOTask::new).collect(Collectors.toList()));
+	
+		return ResponseEntity.ok(personDetailsData);
+		
+	}
+	
+	@DeleteMapping("/{id}")
+	@Transactional
+	public ResponseEntity<Void> delete(@PathVariable Long id){
+		personRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+		
 	}
 	
 }

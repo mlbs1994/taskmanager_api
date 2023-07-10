@@ -1,5 +1,6 @@
 package com.taskmanager.api.model.person;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.taskmanager.api.model.department.Department;
@@ -39,7 +40,7 @@ public class Person {
 	private Department department;
 	
 	@OneToMany(mappedBy = "person")
-	private List<Task> tasksList;
+	private List<Task> tasksList = new ArrayList<>();
 	
 	public Person(DTOPerson personData) {
 		this.name = personData.name();
@@ -49,6 +50,16 @@ public class Person {
 	public Person(DTOPerson personData, Department department) {
 		this.name = personData.name();
 		this.department = department;
+	}
+
+	public void update(DTOUpdatePerson personData, Department department) {
+		this.name = personData.name();
+		this.department = department;
+	}
+	
+	@Override
+	public String toString() {
+		return this.name;
 	}
 
 }
