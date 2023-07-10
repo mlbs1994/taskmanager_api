@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.taskmanager.api.model.person.Person;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +29,10 @@ public class Task {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@ManyToOne
+	@JoinColumn(name = "person_id")
+	private Person person;
+	
 	private String title;
 	
 	private String description;
@@ -36,9 +41,6 @@ public class Task {
 	
 	private int duration; 
 	
-	@ManyToOne
-	@JoinColumn(name = "person_id")
-	private Person person;
-	
+	@Column(name="is_done")
 	private boolean isDone;
 }

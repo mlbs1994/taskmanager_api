@@ -1,0 +1,1 @@
+ALTER TABLE task CHANGE isDone is_done boolean;

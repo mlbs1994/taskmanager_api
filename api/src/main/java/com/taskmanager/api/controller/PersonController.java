@@ -64,7 +64,7 @@ public class PersonController {
 	
 	@PostMapping
 	@Transactional
-	public ResponseEntity<DTOPersonDetails> cadastrar(@RequestBody DTOPerson personData, UriComponentsBuilder uribuilder) {
+	public ResponseEntity<DTOPersonDetails> register(@RequestBody DTOPerson personData, UriComponentsBuilder uribuilder) {
 		
 		//Id must be required
 		Department department = departmentRepository.getReferenceById(personData.department().id());
