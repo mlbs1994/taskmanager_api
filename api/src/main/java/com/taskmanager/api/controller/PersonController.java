@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.taskmanager.api.model.person.DTOPersonList;
+import com.taskmanager.api.model.department.DTODepartment;
+import com.taskmanager.api.model.department.Department;
+import com.taskmanager.api.model.department.DepartmentRepository;
 import com.taskmanager.api.model.person.DTOPerson;
+import com.taskmanager.api.model.person.DTOPersonList;
 import com.taskmanager.api.model.person.Person;
 import com.taskmanager.api.model.person.PersonRepository;
 
@@ -26,11 +29,14 @@ import jakarta.transaction.Transactional;
 public class PersonController {
 	
 	@Autowired
-	PersonRepository repository;
-
+	PersonRepository personRepository;
+	
+	@Autowired
+	DepartmentRepository departmentRepository;
+	
 	@GetMapping
 	public ResponseEntity<Page<DTOPersonList>> list(@PageableDefault(size = 10, sort = {"name"}) Pageable pagination ){
-		Page<DTOPersonList> page = repository.findAll(pagination).map(DTOPersonList:: new);
+		Page<DTOPersonList> page = personRepository.findAll(pagination).map(DTOPersonList:: new);
 		
 		return ResponseEntity.ok(page);
 	}
@@ -40,8 +46,20 @@ public class PersonController {
 	@PostMapping
 	@Transactional
 	public ResponseEntity<DTOPerson> cadastrar(@RequestBody DTOPerson personData, UriComponentsBuilder uribuilder) {
-		Person person = new Person(personData);
-		repository.save(person);
+		
+		Department department = personData.department().id() != 0? 
+				departmentRepository.getReferenceById(personData.department().id()):
+				departmentRepository.save(new Department(personData.department().name()));
+		
+		Person person = new Person(personData, department);
+		person = personRepository.save(person);
+		
+		if(personData.department().name() == null || personData.department().name().isBlank()) {
+			personData = new DTOPerson(person.getName(),
+						 new DTODepartment(person.getDepartment().getId(),
+								 		   person.getDepartment().getName()),
+						 				   person.getTasksList());
+		}
 		
 		URI uri = uribuilder.path("person/{id}").buildAndExpand(person.getId()).toUri();
 		

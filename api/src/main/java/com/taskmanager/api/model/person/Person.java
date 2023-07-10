@@ -10,6 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -31,6 +33,8 @@ public class Person {
 	
 	private String name;
 	
+	@ManyToOne
+	@JoinColumn(name = "department")
 	@Embedded
 	private Department department;
 	
@@ -39,7 +43,12 @@ public class Person {
 	
 	public Person(DTOPerson personData) {
 		this.name = personData.name();
-		this.department.updateDepartment(personData.department());
+		this.department = new Department(personData.department());
+	}
+	
+	public Person(DTOPerson personData, Department department) {
+		this.name = personData.name();
+		this.department = department;
 	}
 
 }

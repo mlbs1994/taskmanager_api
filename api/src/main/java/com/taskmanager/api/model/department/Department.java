@@ -1,5 +1,6 @@
 package com.taskmanager.api.model.department;
 
+import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
+@Embeddable
 public class Department {
 	
 	@Id
@@ -24,7 +26,12 @@ public class Department {
 	
 	private String name;
 
-	public void updateDepartment(DTODepartment department) {
-		this.name = department.name();
+	public Department(DTODepartment data) {
+		this.id = data.id();
+		this.name = data.name();
+	}
+	
+	public Department(String name) {
+		this.name = name;
 	}
 }
