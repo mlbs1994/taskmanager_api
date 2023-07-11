@@ -26,6 +26,7 @@ import com.taskmanager.api.model.person.PersonRepository;
 import com.taskmanager.api.model.task.DTOTask;
 import com.taskmanager.api.model.task.DTOTaskDetails;
 import com.taskmanager.api.model.task.DTOUpdateTask;
+import com.taskmanager.api.model.task.DTOUpdateTaskAllocation;
 import com.taskmanager.api.model.task.Task;
 import com.taskmanager.api.model.task.TaskRepository;
 
@@ -45,7 +46,7 @@ public class TaskController {
 	PersonRepository personRepository;
 	
 	@GetMapping
-	public ResponseEntity<Page<DTOTaskDetails>> list(@PageableDefault(size = 10, sort = {"name"}) Pageable pagination ){
+	public ResponseEntity<Page<DTOTaskDetails>> list(@PageableDefault(size = 10, sort = {"title"}) Pageable pagination ){
 		Page<DTOTaskDetails> page = taskRepository.findAll(pagination).map(DTOTaskDetails:: new);
 		
 		return ResponseEntity.ok(page);
@@ -104,6 +105,47 @@ public class TaskController {
 	
 		return ResponseEntity.ok(taskDetailsData);
 		
+	}
+	
+	@PutMapping("/allocate/{id}")
+	@Transactional
+	public ResponseEntity<DTOTaskDetails> allocate(@RequestBody DTOUpdateTaskAllocation data, @PathVariable Long id){
+		Task task = taskRepository.getReferenceById(data.id());
+		Person person = personRepository.getReferenceById(id);
+		if(task.getDepartment().getId() == person.getDepartment().getId()) {
+			task.allocate(person);
+		} else {
+			// throw Validation exception
+		}
+		
+		DTOTaskDetails taskDetailsData = new DTOTaskDetails(
+				task.getTitle(),
+				task.getDescription(),
+				task.getDeadline(),
+				new DTODepartment(task.getDepartment().getId(), task.getDepartment().getName()),
+				task.getDuration(),
+				new DTOPersonList(person),
+				task.isDone());
+	
+		return ResponseEntity.ok(taskDetailsData);
+	}
+	
+	@PutMapping("/finish/{id}")
+	@Transactional
+	public ResponseEntity<DTOTaskDetails> finish(@PathVariable Long id){
+		Task task = taskRepository.getReferenceById(id);
+		task.done();
+		
+		DTOTaskDetails taskDetailsData = new DTOTaskDetails(
+				task.getTitle(),
+				task.getDescription(),
+				task.getDeadline(),
+				new DTODepartment(task.getDepartment().getId(), task.getDepartment().getName()),
+				task.getDuration(),
+				new DTOPersonList(task.getPerson()),
+				task.isDone());
+	
+		return ResponseEntity.ok(taskDetailsData);
 	}
 	
 	@DeleteMapping("/{id}")

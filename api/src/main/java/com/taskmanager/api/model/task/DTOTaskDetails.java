@@ -22,7 +22,10 @@ public record DTOTaskDetails(
 				task.getDeadline(),
 				new DTODepartment(task.getDepartment().getId(), task.getDepartment().getName()),
 				task.getDuration(),
-				new DTOPersonList(task.getPerson().getName(), task.getDepartment().getName()),
+				new DTOPersonList(
+						task.getPerson().getName(),
+						task.getDepartment().getName(),
+						task.getPerson().getTasksSpentTime()),
 				task.isDone());
 		
 	}

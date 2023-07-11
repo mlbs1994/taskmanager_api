@@ -41,7 +41,7 @@ public class Task {
 	private Date deadline;
 	
 	@ManyToOne
-	@JoinColumn(name = "deparment")
+	@JoinColumn(name = "department")
 	private Department department;
 	
 	private int duration; 
@@ -61,12 +61,20 @@ public class Task {
 	}
 
 	public void update(DTOUpdateTask taskData, Department department, Person person) {
-		this.title = taskData.title();
-		this.description = taskData.description();
-		this.deadline = taskData.deadline();
-		this.department = department;
-		this.duration = taskData.duration();
-		this.person = person;
+		this.title = taskData.title() != null? taskData.title(): this.title;
+		this.description = taskData.description() != null? taskData.description():this.description;
+		this.deadline = taskData.deadline() != null? taskData.deadline():this.deadline;
+		this.department = department != null? department:this.department;
+		this.duration = taskData.duration() != 0? taskData.duration():this.duration;
+		this.person = person != null? person:this.person;
 		this.isDone = taskData.isDone();
+	}
+
+	public void allocate(Person person) {
+		this.person = person;
+	}
+
+	public void done() {
+		this.isDone = true;
 	}
 }

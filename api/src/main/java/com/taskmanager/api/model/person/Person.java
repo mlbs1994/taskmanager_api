@@ -62,4 +62,14 @@ public class Person {
 		return this.name;
 	}
 
+	public int getTasksSpentTime() {
+		int spentTime = 0;
+		
+		for (Task task : tasksList) {
+			spentTime = spentTime + task.getDuration();
+		}
+		
+		return spentTime;
+	}
+
 }

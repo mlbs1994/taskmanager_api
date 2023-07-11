@@ -4,12 +4,14 @@ public record DTOPersonList(
 		
 		String name,
 		
-		String department
+		String department,
+		
+		int tasksSpentTime
 		
 		){
 	
 	public DTOPersonList(Person person) {
-		this(person.getName(), person.getDepartment().getName());
+		this(person.getName(), person.getDepartment().getName(), person.getTasksSpentTime());
 	}
 
 }
