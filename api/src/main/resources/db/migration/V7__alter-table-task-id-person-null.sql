@@ -1,0 +1,1 @@
+ALTER TABLE task MODIFY person_id BIGINT;

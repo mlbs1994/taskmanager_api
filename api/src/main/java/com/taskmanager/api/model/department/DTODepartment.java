@@ -7,4 +7,7 @@ public record DTODepartment(
 		
 		) {
 
+	public DTODepartment(Department department) {
+		this(department.getId(), department.getName());
+	}
 }

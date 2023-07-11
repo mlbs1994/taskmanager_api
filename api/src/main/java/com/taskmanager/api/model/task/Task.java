@@ -55,7 +55,7 @@ public class Task {
 		this.deadline = task.deadline();
 		this.department = department;
 		this.duration = task.duration();
-		this.person = person;
+		this.person = person != null ? person : null;
 		this.isDone = task.isDone();
 		
 	}

@@ -20,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.taskmanager.api.model.department.DTODepartment;
 import com.taskmanager.api.model.department.Department;
 import com.taskmanager.api.model.department.DepartmentRepository;
+import com.taskmanager.api.model.person.DTOPersonId;
 import com.taskmanager.api.model.person.DTOPersonList;
 import com.taskmanager.api.model.person.Person;
 import com.taskmanager.api.model.person.PersonRepository;
@@ -62,12 +63,17 @@ public class TaskController {
 		
 	}
 	
+	
 	@PostMapping
 	@Transactional
-	public ResponseEntity<DTOTaskDetails> register(@RequestBody DTOTask taskData, UriComponentsBuilder uribuilder) {
+	public ResponseEntity<DTOTaskDetails> create(@RequestBody DTOTask taskData, UriComponentsBuilder uribuilder) {
 		
 		Department department = departmentRepository.getReferenceById(taskData.department().id());
-		Person person = personRepository.getReferenceById(taskData.person().id());
+		DTOPersonId personData = taskData.person();
+		
+		Person person = personData != null? 
+				personRepository.getReferenceById(personData.id()) :
+					null;
 		
 		Task task = new Task(taskData, department, person);
 		task = taskRepository.save(task);
@@ -78,7 +84,7 @@ public class TaskController {
 				task.getDeadline(),
 				new DTODepartment(department.getId(), department.getName()),
 				task.getDuration(),
-				new DTOPersonList(person),
+				person != null? new DTOPersonList(person) : null,
 				task.isDone());
 		
 		URI uri = uribuilder.path("task/{id}").buildAndExpand(task.getId()).toUri();
@@ -100,7 +106,7 @@ public class TaskController {
 				task.getDeadline(),
 				new DTODepartment(department.getId(), department.getName()),
 				task.getDuration(),
-				new DTOPersonList(person),
+				person != null ? new DTOPersonList(person) : null,
 				task.isDone());
 	
 		return ResponseEntity.ok(taskDetailsData);
